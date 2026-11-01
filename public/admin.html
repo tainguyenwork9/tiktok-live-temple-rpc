@@ -143,13 +143,14 @@
       <section class="card">
         <h2>📡 1. Kết Nối Phòng TikTok Live & Giọng Đọc ZeroTTS (Mai Chi)</h2>
         <div class="row">
-          <input type="text" id="ttUser" placeholder="Nhập @username TikTok đang phát Live..." />
+          <input type="text" id="ttUser" value="@ntwzai200" placeholder="Nhập @username TikTok đang phát Live..." />
           <button class="btn gold" id="btnConn">Kết Nối Live</button>
           <button class="btn" id="btnDisc">Ngắt</button>
         </div>
         <div class="row">
           <input type="text" id="ttsDirectText" value="Nam mô A Di Đà Phật. Chùa Linh Ứng Online xin kính chào quý thí chủ thập phương." />
           <button class="btn gold" id="btnSpeakMaiChi">🎙️ Đọc thử Giọng Mai Chi</button>
+          <button class="btn" id="btnClearCache" style="white-space: nowrap;">🗑️ Xoá Cache TTS</button>
         </div>
         <audio id="adminAudioPreview" controls style="width: 100%; height: 38px;"></audio>
       </section>
@@ -229,12 +230,19 @@
         player.play().catch(() => {});
       }
     };
+    document.getElementById('btnClearCache').onclick = async () => {
+      const data = await sendRpc('temple.clearTtsCache', {});
+      alert(`Đã xoá thành công ${data?.result?.deleted || 0} file cache giọng đọc!`);
+    };
 
     async function refreshStatus() {
-      const res = await fetch('/api/state');
-      const st = await res.json();
-      document.getElementById('statusBanner').textContent =
-        `Hương đã thắp: ${st.totalIncense} | Tổng Công Đức: ${st.totalMerit} | ZeroTTS: ${st.tts?.status} (Giọng: ${st.tts?.voice})`;
+      try {
+        const res = await fetch('/api/state');
+        if (!res.ok) return;
+        const st = await res.json();
+        document.getElementById('statusBanner').textContent =
+          `Hương đã thắp: ${st.totalIncense} | Tổng Công Đức: ${st.totalMerit} | ZeroTTS: ${st.tts?.status} (Giọng: ${st.tts?.voice})`;
+      } catch (_) {}
     }
     refreshStatus();
     setInterval(refreshStatus, 4000);

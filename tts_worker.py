@@ -16,6 +16,14 @@ import traceback
 import unicodedata
 from pathlib import Path
 
+# Đảm bảo I/O UTF-8 trên Windows để không bị UnicodeDecodeError/UnicodeEncodeError với tiếng Việt
+if sys.platform == "win32":
+    try:
+        sys.stdin.reconfigure(encoding="utf-8")
+        sys.stdout.reconfigure(encoding="utf-8")
+    except (AttributeError, io.UnsupportedOperation):
+        pass
+
 os.environ.setdefault("OMP_NUM_THREADS", "3")
 os.environ.setdefault("OMP_WAIT_POLICY", "PASSIVE")
 os.environ.setdefault("MKL_NUM_THREADS", "3")
@@ -139,7 +147,10 @@ def main() -> None:
         })
         sys.exit(1)
 
-    for line in sys.stdin:
+    while True:
+        line = sys.stdin.readline()
+        if not line:
+            break
         line = line.strip()
         if not line:
             continue

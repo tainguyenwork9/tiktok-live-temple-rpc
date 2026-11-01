@@ -100,6 +100,8 @@ const FORTUNE_DECK = [
   }
 ];
 
+let zeroTts = null;
+
 // ============================================================================
 // 2. ZEROTTS PYTHON WORKER MANAGER (VOICE: MAI CHI)
 // ============================================================================
@@ -119,9 +121,27 @@ class ZeroTTSManager {
   }
 
   resolvePythonBin() {
-    const venvPy = path.join(__dirname, '.venv', 'bin', 'python');
-    if (fs.existsSync(venvPy)) return venvPy;
-    return 'python3';
+    const isWin = process.platform === 'win32';
+    const venvPyWin = path.join(__dirname, '.venv', 'Scripts', 'python.exe');
+    const venvPyUnix = path.join(__dirname, '.venv', 'bin', 'python');
+    if (isWin && fs.existsSync(venvPyWin)) return venvPyWin;
+    if (!isWin && fs.existsSync(venvPyUnix)) return venvPyUnix;
+
+    if (isWin) {
+      const localAppData = process.env.LOCALAPPDATA || path.join(process.env.USERPROFILE || 'C:\\Users\\ntai', 'AppData', 'Local');
+      const candidatePaths = [
+        path.join(localAppData, 'Programs', 'Python', 'Python311', 'python.exe'),
+        path.join(localAppData, 'Programs', 'Python', 'Python310', 'python.exe'),
+        path.join(localAppData, 'Programs', 'Python', 'Python312', 'python.exe'),
+        'C:\\Program Files\\Python311\\python.exe',
+        'C:\\Program Files\\Python310\\python.exe'
+      ];
+      for (const p of candidatePaths) {
+        if (fs.existsSync(p)) return p;
+      }
+    }
+
+    return isWin ? 'python' : 'python3';
   }
 
   startWorker() {
@@ -130,9 +150,31 @@ class ZeroTTSManager {
     console.log(`[ZeroTTS] Khởi chạy worker với ${pyBin} (Giọng mặc định: Mai Chi)...`);
 
     this.status = 'loading';
-    this.proc = spawn(pyBin, [scriptPath], {
-      cwd: __dirname,
-      stdio: ['pipe', 'pipe', 'pipe']
+    try {
+      this.proc = spawn(pyBin, [scriptPath], {
+        cwd: __dirname,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
+      });
+    } catch (err) {
+      console.warn(`[ZeroTTS] Không thể spawn worker (${err.message}). Chuyển sang Web Speech API fallback.`);
+      this.ready = false;
+      this.status = 'error';
+      return;
+    }
+
+    this.proc.on('error', (err) => {
+      console.warn(`[ZeroTTS Error] Lỗi tiến trình worker (${err.message}). Chuyển sang Web Speech API fallback.`);
+      this.ready = false;
+      this.status = 'error';
+      if (typeof broadcastNotification === 'function') {
+        broadcastNotification('tts.status', this.getStatus());
+      }
+      for (const [, item] of this.pending) {
+        clearTimeout(item.timer);
+        item.resolve({ ok: false, error: err.message });
+      }
+      this.pending.clear();
     });
 
     this.proc.stdout.on('data', (chunk) => {
@@ -223,7 +265,7 @@ class ZeroTTSManager {
       const timer = setTimeout(() => {
         this.pending.delete(id);
         resolve({ ok: false, error: 'ZeroTTS synthesis timeout' });
-      }, 30000);
+      }, 60000); // 60 giây để xử lý mượt mà khi nhiều thí chủ cùng bình luận dồn dập
 
       this.pending.set(id, { resolve, timer });
       const payload = JSON.stringify({ id, text: cleanText, voice }) + '\n';
@@ -234,6 +276,24 @@ class ZeroTTSManager {
 
     this.inflight.set(dedupKey, promise);
     return promise;
+  }
+
+  clearCache() {
+    try {
+      const files = fs.readdirSync(TTS_CACHE_DIR);
+      let count = 0;
+      for (const f of files) {
+        if (f.endsWith('.wav')) {
+          try {
+            fs.unlinkSync(path.join(TTS_CACHE_DIR, f));
+            count++;
+          } catch (_) {}
+        }
+      }
+      return { ok: true, deleted: count };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
   }
 }
 
@@ -262,6 +322,8 @@ const DEFAULT_STATE = {
     ttsVoice: 'maichi',
     bgMusicEnabled: true,
     sfxEnabled: true,
+    musicVolume: 0.65,
+    ttsVolume: 0.95,
     smokeDensity: 1.0,
     autoSim: false,
     autoSimIntervalMs: 9500
@@ -269,7 +331,7 @@ const DEFAULT_STATE = {
   tiktok: {
     connected: false,
     connecting: false,
-    username: 'zenfacts_vn',
+    username: 'ntwzai200',
     roomId: null,
     viewerCount: 0,
     lastError: null
@@ -413,7 +475,7 @@ function recordDevotee(user, uniqueId, avatar, meritDelta, incenseDelta = 0, gif
   if (cleanWish) dev.lastWish = cleanWish;
 
   state.totalMerit += meritDelta;
-  state.haloIntensity = Math.min(1.0, 0.35 + (state.totalMerit % 1000) / 1400);
+  state.haloIntensity = Math.min(1.0, 0.40 + Math.min(0.60, Math.log10(Math.max(10, state.totalMerit)) * 0.16));
   return dev;
 }
 
@@ -908,8 +970,19 @@ async function connectTikTokLive(usernameOrUrl) {
     Rituals.strikeWoodenFish({ user, uniqueId, avatar, count: likeCount });
   });
 
+  const socialCooldownMap = new Map();
   const handleSocialEvent = (data) => {
     const { user, uniqueId, avatar } = extractUserFromEvent(data);
+    const userKey = uniqueId || user || '';
+    const now = Date.now();
+    if (userKey) {
+      const lastTs = socialCooldownMap.get(userKey) || 0;
+      if (now - lastTs < 4000) return; // Chống double trigger từ cả FOLLOW + SOCIAL
+      socialCooldownMap.set(userKey, now);
+      if (socialCooldownMap.size > 300) {
+        socialCooldownMap.delete(socialCooldownMap.keys().next().value);
+      }
+    }
     Rituals.ringBell({
       user,
       uniqueId,
@@ -1076,6 +1149,8 @@ async function handleRpcCall(method, params = {}) {
     }
     case 'temple.ttsStatus':
       return zeroTts.getStatus();
+    case 'temple.clearTtsCache':
+      return zeroTts.clearCache();
     case 'live.connect':
       return await connectTikTokLive(params.username);
     case 'live.disconnect':
@@ -1140,6 +1215,10 @@ app.all('/api/tts', async (req, res) => {
   res.json(result);
 });
 
+app.post('/api/tts/clear-cache', (_req, res) => {
+  res.json(zeroTts.clearCache());
+});
+
 app.get('/api/state', (_req, res) => {
   res.json(getPublicState());
 });
@@ -1202,7 +1281,7 @@ wss.on('connection', (ws) => {
   });
 });
 
-const zeroTts = new ZeroTTSManager();
+zeroTts = new ZeroTTSManager();
 
 server.listen(PORT, () => {
   console.log(`============================================================`);
@@ -1212,8 +1291,8 @@ server.listen(PORT, () => {
   console.log(`🔌 JSON-RPC 2.0 Endpoint   : http://localhost:${PORT}/rpc (ws://localhost:${PORT}/ws)`);
   console.log(`============================================================`);
 
-  // Tự động kết nối tới @zenfacts_vn ngay khi khởi động server
-  const defaultChannel = process.env.TIKTOK_USER || state.tiktok?.username || 'zenfacts_vn';
+  // Tự động kết nối tới @ntwzai200 ngay khi khởi động server
+  const defaultChannel = process.env.TIKTOK_USER || state.tiktok?.username || 'ntwzai200';
   if (defaultChannel) {
     connectTikTokLive(defaultChannel).catch((err) => {
       console.warn(`[Auto-Connect @${defaultChannel}] Chưa kết nối được ngay:`, err.message);

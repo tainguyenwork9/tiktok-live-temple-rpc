@@ -1,99 +1,153 @@
 # 🪷 Chùa Linh Ứng Online — TikTok Live RPC (9:16 Interactive Buddhist Sanctuary)
 
-Hệ thống phát trực tiếp tương tác (**Interactive TikTok Live Stream & JSON-RPC 2.0**) chuẩn khung dọc **9:16 (`1080×1920`)** dành cho **OBS Studio / TikTok Live Studio**, chạy siêu nhẹ trên **Bun.js** và tích hợp giọng đọc AI tiếng Việt **ZeroTTS (`zeroweight-ai/ZeroTTS`)**.
-
-Người xem trên TikTok Live tương tác trực tiếp qua **Bình luận (Comment)**, **Thả tim (Like)**, **Chia sẻ / Follow** và **Tặng quà (Gift)** để thực hiện các nghi thức tâm linh trên màn hình Chánh Điện **Đức Phật A Di Đà**:
-- 🔥 **Thắp hương & Đảnh lễ Tam Bái (8-Frame Walking & Prostration)**: Nhân vật Phật tử mặc áo lam bước đi từng bước dọc thảm đỏ hoa sen lên trước Lư Hương Đỉnh Đồng, hạ gối quỳ và thực hiện 3 lạy Ngũ thể đầu địa hướng về Đức Phật A Di Đà.
-- 🏮 **Thả Đèn Hoa Đăng / Sớ Cầu Nguyện**: Bình luận lời khấn sẽ bay lên thành Đèn Hoa Đăng kèm giọng đọc AI đọc lời cầu nguyện.
-- 🎋 **Xin Xăm / Gieo Quẻ Đầu Năm (Đồng bộ Giọng đọc & Tờ Giải Quẻ)**: Tự động lắc ống xăm và mở tờ Giải Quẻ (Thượng Thượng Cát, Đại Cát, Thượng Cát...) đúng thời điểm giọng đọc bắt đầu vang lên.
-- 🪵 **Gõ Mõ & 🔔 Thỉnh Đại Hồng Chung**: Thả tim gõ mõ tích điểm Công Đức, chia sẻ/follow thỉnh chuông đồng lan tỏa sóng âm vàng và kích hoạt làn sóng vái lạy của 40+ Phật tử trong Đạo Tràng.
-- 📜 **Bảng Vàng Công Đức (`TẤM LÒNG THÀNH` & 6 Đệm Quỳ VIP)**: Vinh danh trực tiếp người xem thật có điểm Công Đức cao nhất trên 6 đệm quỳ gấm đỏ trước bàn thờ Phật.
+Hệ thống phát trực tiếp tương tác tâm linh (**Interactive TikTok Live Stream & JSON-RPC 2.0**) chuẩn khung hình dọc **9:16 (`1080×1920`)** dành cho **OBS Studio / TikTok Live Studio**, chạy mượt mà trên cả **Node.js** lẫn **Bun.js**, tích hợp mô hình AI giọng đọc tiếng Việt **ZeroTTS (Giọng Mai Chi 48kHz)** và nhạc thiền thanh tịnh (`music2.mp3`) có cơ chế tự động giảm âm lượng thông minh (Auto-Ducking).
 
 ---
 
-## 📸 Hình Ảnh Demo Giao Diện
+## ✨ Tính Năng Nổi Bật
 
-### 1. Màn hình Chánh Điện 9:16 & Bảng Điều Khiển Nhanh (`http://localhost:3000`)
-![Màn hình Chánh Điện và Điều Khiển Nhanh](docs/demo/demo-main-stage.png)
+* 🔥 **Thắp Hương & Đảnh Lễ Tam Bái (8-Frame Sprite)**: Người xem bình luận `thắp hương` hoặc tặng hoa, nhân vật Phật tử mặc áo lam sẽ bước đi từng bước dọc thảm đỏ hoa sen lên trước Lư Hương Đỉnh Đồng, quỳ gối đảnh lễ 3 lạy trước Tam Bảo.
+* 🏮 **Thả Đèn Hoa Đăng / Sớ Cầu Nguyện**: Lời cầu chúc bình an bay lên thành Đèn Hoa Đăng tỏa sáng giữa chánh điện kèm giọng đọc AI đọc lời cầu nguyện của thí chủ.
+* 🎋 **Gieo Quẻ / Xin Xăm Linh Ứng**: Lắc ống xăm vật lý và mở Tờ Giải Quẻ (Thượng Thượng Cát, Đại Cát, Thượng Cát...) đúng thời điểm giọng đọc Mai Chi giải quẻ.
+* 🪵 **Gõ Mõ & 🔔 Thỉnh Đại Hồng Chung**: Thả tim tự động gõ mõ tích điểm Công Đức; chia sẻ/follow thỉnh chuông đồng ngân vang kèm sóng âm lan tỏa và hiệu ứng vái lạy đồng loạt của 40+ Phật tử trong hội chúng.
+* 🎵 **Nhạc Nền Thanh Tịnh (`music2.mp3`) & Auto-Ducking**: Nhạc nền tự động hạ nhỏ âm lượng khi có lời khấn hoặc đọc quẻ, sau đó tự phục hồi mượt mà.
+* 🎙️ **Giọng Đọc AI Mai Chi Chuẩn 48kHz**: Sử dụng ZeroTTS đọc tên thí chủ, lời khấn và giải quẻ tự nhiên, không dùng giọng robot máy móc.
+* 📜 **Bảng Vàng Công Đức (`TẤM LÒNG THÀNH` & 6 Đệm Quỳ VIP)**: Tự động ghi nhận và vinh danh Top thí chủ có điểm công đức cao nhất trên 6 đệm quỳ gấm đỏ.
 
-### 2. Chế độ OBS Browser Source 9:16 Sạch (`http://localhost:3000/?obs=1`) & Gieo Quẻ Linh Xăm
-| Màn hình OBS 9:16 (`?obs=1`) | Tờ Giải Quẻ Linh Xăm (Đồng bộ Giọng Đọc) |
+---
+
+## 📸 Giao Diện Trực Quan
+
+| Màn hình Live 9:16 OBS (`?obs=1`) | Bảng Điều Khiển Admin & RPC (`/admin`) |
 | :---: | :---: |
-| ![OBS 9:16 Mode](docs/demo/demo-obs-9x16.png) | ![Fortune Oracle Modal](docs/demo/demo-fortune-oracle.png) |
-
-### 3. Bảng Điều Khiển JSON-RPC 2.0 & Admin (`http://localhost:3000/admin`)
-![Admin JSON-RPC Panel](docs/demo/demo-admin-panel.png)
+| ![OBS 9:16 Mode](docs/demo/demo-obs-9x16.png) | ![Admin JSON-RPC Panel](docs/demo/demo-admin-panel.png) |
 
 ---
 
-## ⚡ Kiến Trúc & Tối Ưu Hóa Hiệu Suất (Siêu Nhẹ CPU/GPU)
+## 🛠️ Yêu Cầu Hệ Thống (Prerequisites)
 
-- **Runtime**: Chạy trực tiếp trên **Bun.js** (`~0.1% CPU` khi chờ).
-- **Canvas Particle Engine (`public/js/particles.js`)**:
-  - Khóa tốc độ vẽ ở **30 FPS** ổn định, tự động tạm dừng khi ẩn tab (`document.hidden`).
-  - Pre-render toàn bộ Khói hương, Hạt vàng và Cánh hoa sen ra Offscreen Canvas 1 lần duy nhất lúc khởi tạo (`drawImage`), không gọi `createRadialGradient` hay `shadowBlur` trong vòng lặp frame.
-- **Zero-Flicker 8-Frame Sprite Stack (`public/js/live.js` & `public/css/live.css`)**:
-  - Nạp sẵn cả 8 khung hình chuyển động (`walk1`, `walk2`, `kneelDown`, `kneel`, `forehead`, `bowMid`, `prostrate`, `prostrateDeep`) vào GPU với bóng đổ (drop-shadow) đã bake sẵn trong PNG, loại bỏ hoàn toàn hiện tượng nháy/mất hình khi chuyển tư thế.
-- **ZeroTTS Worker (`tts_worker.py`)**:
-  - Tiến trình Python thường trú nạp sẵn model `zeroweight-ai/ZeroTTS` (`intra_op_num_threads=3`, `OMP_WAIT_POLICY=PASSIVE` → **`0.0% CPU` khi chờ**).
-  - Tổng hợp nguyên câu trong 1 lần gọi (`single-pass synthesis`), khử DC offset, chuẩn hóa đỉnh âm lượng (`peak <= 0.90`) và làm mượt 2 đầu sóng âm (`cosine fade-in/out`) chống xước/rè tiếng.
-- **Bộ Lọc Chặn Ký Tự Lạ & Spam (`server.js` & `tts_worker.py`)**:
-  - Chặn tự động các ký tự Cuneiform (`𒐫`), chữ Ả Rập gây lag, Braille, Zalgo, bình luận chỉ toàn dấu chấm (`...`) hoặc từ ngữ phản cảm.
-  - Tự động chuẩn hóa Unicode (`NFKC` → `NFC`) chuyển tên kiểu chữ toán học về tiếng Việt sạch trước khi đọc TTS.
+1. **Node.js** (Khuyên dùng bản `>= 18.x` hoặc `20.x` / `24.x`) hoặc **Bun.js** (`>= 1.1`).
+2. **Python 3.10** hoặc **3.11** (Để chạy mô hình AI giọng đọc Mai Chi).  
+   *⚠️ Khi cài Python trên Windows, nhớ tích vào ô vuông: **☑️ Add python.exe to PATH**.*
 
 ---
 
-## 🚀 Hướng Dẫn Cài Đặt & Chạy Nhanh
+## 🚀 Hướng Dẫn Cài Đặt Chi Tiết Cho Người Mới
 
-### 1. Yêu cầu hệ thống
-- [Bun.js](https://bun.sh/) (`>= 1.1`)
-- Python `3.10+` & [`uv`](https://github.com/astral-sh/uv) (để tạo môi trường `.venv` chạy `zerotts`)
-
-### 2. Cài đặt thư viện
+### Bước 1: Tải mã nguồn về máy
 ```bash
-# Cài đặt dependencies cho Bun / Node
+git clone https://github.com/your-username/tiktok-live-temple-rpc.git
+cd tiktok-live-temple-rpc
+```
+
+### Bước 2: Cài đặt thư viện Node.js
+```bash
+npm install
+# Hoặc nếu dùng Bun:
 bun install
-
-# Tạo môi trường Python .venv và cài đặt ZeroTTS
-uv venv .venv
-uv pip install --python .venv/bin/python zerotts pillow
 ```
 
-### 3. Khởi chạy Server
+### Bước 3: Cài đặt thư viện AI cho giọng Mai Chi
+Mở Terminal / PowerShell và chạy lệnh sau:
 ```bash
-bun start
-# Hoặc chế độ tự động reload khi sửa code:
-bun run dev
+pip install zerotts numpy
 ```
-
-Mặc định server chạy tại cổng `3000`:
-- **Màn hình Live + Điều khiển nhanh**: [http://localhost:3000](http://localhost:3000)
-- **Màn hình OBS Browser Source (Sạch 9:16)**: [http://localhost:3000/?obs=1](http://localhost:3000/?obs=1) *(Đặt kích thước Browser Source trong OBS là `1080 × 1920`)*
-- **Bảng điều khiển Admin & RPC**: [http://localhost:3000/admin](http://localhost:3000/admin)
+*(Lần đầu tiên khởi động, hệ thống sẽ tự động tải mô hình AI ZeroTTS khoảng 1 GB từ Hugging Face về máy và lưu vào bộ nhớ cache).*
 
 ---
 
-## 🎮 Bảng Quy Tắc Tương Tác TikTok Live
+## ▶️ Cách Khởi Động Dự Án
 
-| Sự kiện TikTok Live | Điều kiện / Từ khóa | Nghi thức trên Chánh Điện | Điểm Công Đức |
+### 1. Chạy với cổng mặc định (`3000`):
+* **Bằng Node.js:**
+  ```powershell
+  node server.js
+  ```
+* **Bằng Bun:**
+  ```powershell
+  bun run server.js
+  ```
+
+### 2. Chạy với cổng tùy chọn (Ví dụ cổng `3001` hoặc `8080`):
+* **Trên Windows PowerShell:**
+  ```powershell
+  $env:PORT=3001; node server.js
+  ```
+* **Trên CMD:**
+  ```cmd
+  set PORT=3001 && node server.js
+  ```
+* **Trên macOS / Linux:**
+  ```bash
+  PORT=3001 node server.js
+  ```
+
+### 3. Tùy chọn đặt sẵn tài khoản TikTok Live khi bật server:
+```powershell
+$env:TIKTOK_USER="ntwzai200"; node server.js
+```
+
+---
+
+## 🌐 Các Đường Dẫn Sau Khi Chạy
+
+| Trang | URL | Mục đích sử dụng |
+| :--- | :--- | :--- |
+| **Màn hình Live 9:16** | `http://localhost:3000` | Màn hình tương tác chính kèm bảng điều khiển nhanh bên phải |
+| **Màn hình OBS 9:16 (Sạch)** | `http://localhost:3000/?obs=1` | Màn hình không chứa nút bấm, dành riêng để nhúng vào OBS Studio |
+| **Bảng Điều Khiển Admin** | `http://localhost:3000/admin` | Quản lý kết nối TikTok, kích hoạt nghi thức, nghe thử và xoá cache giọng đọc |
+| **Cổng JSON-RPC 2.0** | `http://localhost:3000/rpc` | Endpoint nhận lệnh từ TikFinity, Streamer.bot hoặc cURL |
+
+---
+
+## 📺 Cấu Hình Đưa Lên OBS Studio (Livestream TikTok 9:16)
+
+1. Mở **OBS Studio**, tại khung **Sources (Nguồn)** bấm dấu **`+`** ➔ Chọn **Browser (Trình duyệt)**.
+2. Đặt tên (Ví dụ: `Chùa Online 9:16`).
+3. Cấu hình các thông số:
+   * **URL:** `http://localhost:3000/?obs=1`
+   * **Width (Chiều rộng):** `1080`
+   * **Height (Chiều cao):** `1920`
+   * ☑️ Tích chọn: **Control audio via OBS** (Điều khiển âm thanh qua OBS).
+4. Bấm **OK**. Màn hình Chánh Điện sẽ hiển thị trọn vẹn khung hình dọc 9:16 sắc nét.
+
+---
+
+## 🎮 Bảng Quy Tắc Tự Động Nhận Diện Tương Tác TikTok Live
+
+| Sự kiện trên TikTok Live | Từ khóa nhận diện | Hành động trên Chánh Điện | Công Đức |
 | :--- | :--- | :--- | :---: |
-| **Thả tim (Like)** | Mỗi đợt thả tim | Gõ mõ gỗ tụng kinh + Làn sóng Phật tử vái lạy | `+1` / tim |
-| **Follow / Share** | Theo dõi hoặc chia sẻ | Thỉnh Đại Hồng Chung ngân vang + Sóng âm vàng | `+10` |
-| **Bình luận Thắp hương** | `thắp hương`, `dâng hương`, `bái phật`, `lạy phật` | Phật tử bước dọc thảm đỏ lên trước Lư Hương, quỳ đảnh lễ 3 lạy + Đọc tên khấn | `+15` |
-| **Bình luận Cầu nguyện** | `cầu ...`, `nguyện ...`, `nam mô`, `a di đà phật`, `bình an`, `chúc ...` | Bước lên đảnh lễ + Thả Đèn Hoa Đăng mang lời khấn bay lên trời + Đọc lời cầu nguyện | `+10` |
-| **Bình luận Xin xăm** | `xin xăm`, `gieo quẻ`, `rút quẻ`, `quẻ` | Lắc ống xăm + Mở tờ Giải Quẻ đồng bộ đúng lúc giọng đọc bắt đầu vang lên | `+10` |
-| **Tặng quà Nhỏ (1–4 xu)** | Hoa hồng (Rose), Heart Me... | Bước lên dâng Đài Hoa Sen Vàng + Thắp 3 nén hương + Đọc lời cảm tạ | `+20` / xu |
-| **Tặng quà Vừa (5–99 xu)** | Đèn lưu ly, Mâm ngũ quả... | Dâng Đèn Lưu Ly / Mâm Ngũ Quả + Thỉnh Chuông + Đọc lời chúc phúc | `+30` / xu |
-| **Tặng quà Lớn (≥ 100 xu)** | Quà ≥ 100 xu | **Đại Lễ Kim Long Chầu Phật**: Mưa hoa sen vàng, Hào quang vạn trượng, Chuông đồng ngân vang | `+50` / xu |
+| **Thả tim (Like)** | Thả tim màn hình | Gõ mõ nhịp nhàng + Đạo tràng phật tử vái lạy | `+1` / tim |
+| **Follow / Share** | Bấm Theo dõi hoặc Chia sẻ | Thỉnh Đại Hồng Chung ngân vang + Sóng âm vàng lan tỏa | `+10` |
+| **Bình luận Thắp hương** | `thắp hương`, `dâng hương`, `bái phật`, `lạy phật` | Bước lên đảnh lễ 3 lạy trước Lư Hương + Giọng Mai Chi cảm tạ | `+15` |
+| **Bình luận Cầu nguyện** | `cầu ...`, `nguyện ...`, `nam mô`, `bình an`, `tài lộc` | Thả Đèn Hoa Đăng bay lên trời mang theo lời khấn + Đọc lời cầu nguyện | `+10` |
+| **Bình luận Xin xăm** | `xin xăm`, `gieo quẻ`, `rút quẻ`, `quẻ` | Lắc ống xăm tre + Mở tờ Giải Quẻ đồng bộ theo giọng đọc Mai Chi | `+10` |
+| **Tặng quà nhỏ (1–4 xu)** | Hoa hồng, Heart Me... | Bước lên dâng Đài Hoa Sen Vàng + Thắp 3 nén hương thơm | `+20` / xu |
+| **Tặng quà vừa (5–99 xu)** | Mâm ngũ quả, Đèn lưu ly... | Dâng Mâm Ngũ Quả Cát Tường + Thỉnh Đại Hồng Chung chúc phúc | `+30` / xu |
+| **Tặng quà lớn (≥ 100 xu)** | Rồng vàng, Quà VIP... | **Đại Lễ Kim Long Chầu Phật**: Mưa hoa sen rơi, hào quang phát sáng vạn trượng | `+50` / xu |
 
 ---
 
-## 🔌 Giao Thức JSON-RPC 2.0 (`POST /rpc` & `ws://localhost:3000/ws`)
+## 🗑️ Cách Xoá Cache Giọng Nói (WAV) Khi Cần
 
-Bạn có thể gọi trực tiếp từ **TikFinity**, **Streamer.bot**, webhook hoặc `curl`:
+* **Cách 1 (Nhanh nhất):** Mở trang Admin `http://localhost:3000/admin` ➔ Bấm nút **`🗑️ Xoá Cache TTS`**.
+* **Cách 2 (PowerShell):**
+  ```powershell
+  Remove-Item -Path "data\tts-cache\*" -Force
+  ```
+* **Cách 3 (CMD):**
+  ```cmd
+  del /q /s "data\tts-cache\*"
+  ```
+
+---
+
+## 🔌 Tích Hợp JSON-RPC 2.0 (TikFinity / Streamer.bot / cURL)
+
+Bạn có thể gửi yêu cầu HTTP POST tới `http://localhost:3000/rpc`:
 
 ```bash
-# 1. Thắp hương cầu an
+# Thắp 3 nén hương:
 curl -X POST http://localhost:3000/rpc \
   -H "Content-Type: application/json" \
   -d '{
@@ -103,11 +157,11 @@ curl -X POST http://localhost:3000/rpc \
     "params": {
       "user": "Thí Chủ Minh Tâm",
       "count": 3,
-      "wish": "Cầu gia đình bình an, vạn sự cát tường như ý"
+      "wish": "Cầu gia đạo bình an, vạn sự cát tường"
     }
   }'
 
-# 2. Xin xăm / Gieo quẻ đầu năm
+# Xin xăm / Gieo quẻ:
 curl -X POST http://localhost:3000/rpc \
   -H "Content-Type: application/json" \
   -d '{
@@ -116,56 +170,33 @@ curl -X POST http://localhost:3000/rpc \
     "method": "temple.drawFortune",
     "params": {
       "user": "Thí Chủ Minh Tâm",
-      "topic": "Cầu tài lộc và gia đạo bình an"
-    }
-  }'
-
-# 3. Kết nối tới phòng TikTok Live (@username hoặc link vt.tiktok.com)
-curl -X POST http://localhost:3000/rpc \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 3,
-    "method": "live.connect",
-    "params": {
-      "username": "@zenfacts_vn"
+      "topic": "Cầu tài lộc đầu năm"
     }
   }'
 ```
-
-### Danh sách JSON-RPC Methods hỗ trợ:
-- `temple.getState`: Lấy toàn bộ trạng thái Chánh Điện và Bảng Vàng Công Đức.
-- `temple.burnIncense`: Thắp nhang & bước lên đảnh lễ (`user`, `avatar`, `count`, `wish`).
-- `temple.sendPrayer`: Thả đèn hoa đăng cầu nguyện (`user`, `avatar`, `wish`).
-- `temple.drawFortune`: Lắc ống xăm & gieo quẻ (`user`, `avatar`, `topic`).
-- `temple.strikeWoodenFish`: Gõ mõ tích công đức (`user`, `count`).
-- `temple.ringBell`: Thỉnh Đại Hồng Chung (`user`, `count`, `wish`).
-- `temple.offerGift`: Dâng lễ vật (`user`, `giftType`: `lotus` | `fruit` | `lamp` | `dragon`, `coins`, `giftName`).
-- `temple.grandCeremony`: Kích hoạt Đại Lễ Kim Long Chầu Phật (`user`, `coins`, `giftName`).
-- `temple.updateSettings`: Cập nhật âm lượng nhạc nền (`musicVolume`), giọng đọc (`ttsVolume`), bật/tắt TTS.
-- `temple.resetMerit`: Đặt lại bảng thống kê Công Đức.
-- `live.connect` / `live.disconnect`: Kết nối / Ngắt kết nối phòng TikTok Live.
 
 ---
 
-## 📁 Cấu Trúc Thư Mục
+## 📁 Cấu Trúc Mã Nguồn
 
 ```text
-├── server.js                  # Bun.js HTTP + WebSocket JSON-RPC 2.0 Server & TikTok Live Connector
-├── tts_worker.py              # Tiến trình Python ZeroTTS thường trú (48kHz, chống rè/clipping, lọc ký tự lạ)
+├── server.js               # Máy chủ Node.js/Bun, WebSocket JSON-RPC & TikTok Live Connector
+├── tts_worker.py           # Daemon Python ZeroTTS AI (Giọng Mai Chi 48kHz, xử lý I/O unbuffered)
 ├── data/
-│   ├── merit-state.json       # Lưu trữ bền vững Bảng Vàng Công Đức của người xem thật
-│   └── tts-cache/             # Bộ đệm file âm thanh WAV đã tổng hợp
+│   ├── merit-state.json    # Lưu trữ điểm Công Đức và Bảng Vàng của thí chủ thật
+│   └── tts-cache/          # Bộ đệm file âm thanh .WAV đã tạo (tránh tổng hợp lại)
 ├── public/
-│   ├── index.html             # Giao diện Chánh Điện 9:16 + Bảng điều khiển nhanh
-│   ├── admin.html             # Trang quản trị JSON-RPC 2.0 đầy đủ
-│   ├── css/live.css           # Stylesheet tối ưu GPU Compositor
+│   ├── index.html          # Màn hình Chánh Điện 9:16 Đức Phật A Di Đà
+│   ├── admin.html          # Bảng điều khiển Admin & kiểm thử RPC
+│   ├── css/live.css        # Stylesheet & Animation 2.5D
 │   ├── js/
-│   │   ├── live.js            # Điều phối 8-frame prostration, Đạo Tràng 40 chỗ ngồi & WebSocket RPC
-│   │   ├── particles.js       # 30 FPS Offscreen-Sprite Particle Engine (Khói hương, Hoa sen, Sóng âm)
-│   │   └── audio.js           # Quản lý nhạc nền auto-ducking, Pháp khí Web Audio & hàng đợi đồng bộ TTS
-│   └── assets/                # Hình nền Đức Phật A Di Đà, 8 frame Phật tử áo lam & nhạc nền
-└── docs/
-    ├── demo/                  # Hình ảnh chụp màn hình demo thực tế
-    └── superpowers/specs/     # Tài liệu thiết kế kỹ thuật (Design Spec)
+│   │   ├── live.js         # Quản lý hoạt họa đảnh lễ Tam Bái, 40 ghế Đạo Tràng & WebSocket
+│   │   ├── audio.js        # Nhạc nền music2.mp3 auto-ducking, Pháp khí chuông mõ Web Audio
+│   │   └── particles.js    # Canvas Particles 30 FPS nhẹ CPU (khói nhang, hoa sen, sóng âm)
+│   └── assets/             # Hình ảnh Chánh Điện 8K, 8 pose Phật tử và nhạc nền music2.mp3
 ```
+
+---
+
+## 📜 Giấy Phép (License)
+Dự án được phân phối phi thương mại phục vụ mục đích tâm linh, thiện nguyện và giải trí tương tác trực tuyến. Chúc quý thí chủ vạn sự hanh thông, công đức vô lượng! 🙏

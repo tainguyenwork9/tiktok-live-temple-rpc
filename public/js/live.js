@@ -216,7 +216,7 @@
       if (i % 4 !== 0) return;
       const img = el.querySelector('.devotee-sprite');
       if (!img) return;
-      const delay = (i % 4) * 80;
+      const delay = Math.floor(i / 4) * 80;
       setTimeout(() => { img.src = SPRITE_FRAMES.forehead; }, delay);
       setTimeout(() => { img.src = SPRITE_FRAMES.bowMid; }, delay + 140);
       setTimeout(() => { img.src = SPRITE_FRAMES.prostrateDeep; }, delay + 300);

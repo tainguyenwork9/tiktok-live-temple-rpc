@@ -14,7 +14,7 @@ class TempleAudioEngine {
     this.ttsEnabled = true;
     this.ttsVoice = 'maichi';
 
-    // Nhạc nền "Nam Mô A Di Đà Phật.m4a" — mặc định 65%, cho phép chỉnh trực tiếp 0% - 100%
+    // Nhạc nền chính "music2.mp3" — mặc định 65%, cho phép chỉnh trực tiếp 0% - 100%
     const savedMusicVol = parseFloat(localStorage.getItem('temple_music_vol'));
     const savedTtsVol = parseFloat(localStorage.getItem('temple_tts_vol'));
     this.bgBaseVolume = Number.isFinite(savedMusicVol) ? Math.max(0, Math.min(1, savedMusicVol)) : 0.65;
@@ -22,7 +22,7 @@ class TempleAudioEngine {
 
     this.useSynthMusicFallback = false;
     this.synthBgTimer = null;
-    this.bgAudio = new Audio('/assets/bg_chant.m4a');
+    this.bgAudio = new Audio('/assets/music2.mp3');
     this.bgAudio.loop = true;
     this.bgAudio.preload = 'auto';
     this.bgAudio.volume = this.bgBaseVolume;
@@ -93,10 +93,8 @@ class TempleAudioEngine {
         const p = this.bgAudio.play();
         if (p && typeof p.catch === 'function') {
           p.catch(() => {
-            if (this.bgAudio.error) {
-              this.useSynthMusicFallback = true;
-              this.startDefaultZenSynthLoop();
-            }
+            this.useSynthMusicFallback = true;
+            this.startDefaultZenSynthLoop();
           });
         }
       }
@@ -350,6 +348,55 @@ class TempleAudioEngine {
     }
   }
 
+  speakWebSpeechFallback(text) {
+    return new Promise((resolve) => {
+      if (!window.speechSynthesis) {
+        return setTimeout(resolve, Math.min(5000, Math.max(2500, String(text || '').length * 75)));
+      }
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'vi-VN';
+        utter.rate = 0.92;
+        // Tăng pitch lên 1.32 để thanh thoát nhẹ nhàng, tránh bị giọng nam trầm rè ("Microsoft An") của Windows
+        utter.pitch = 1.32;
+        utter.volume = this.ttsVolume;
+
+        const voices = window.speechSynthesis.getVoices() || [];
+        // Ưu tiên chọn giọng nữ tiếng Việt nếu có trong trình duyệt
+        const femaleVoice = voices.find((v) => (v.lang === 'vi-VN' || v.lang.startsWith('vi')) && (v.name.includes('HoaiMy') || v.name.includes('Linh') || v.name.toLowerCase().includes('female')));
+        const viVoice = femaleVoice || voices.find((v) => v.lang === 'vi-VN' || v.lang.startsWith('vi'));
+        if (viVoice) utter.voice = viVoice;
+
+        let finished = false;
+        const timer = setTimeout(() => {
+          if (!finished) {
+            finished = true;
+            resolve();
+          }
+        }, 12000);
+
+        utter.onend = () => {
+          if (!finished) {
+            finished = true;
+            clearTimeout(timer);
+            resolve();
+          }
+        };
+        utter.onerror = () => {
+          if (!finished) {
+            finished = true;
+            clearTimeout(timer);
+            resolve();
+          }
+        };
+        window.speechSynthesis.speak(utter);
+      } catch (_) {
+        setTimeout(resolve, 3000);
+      }
+    });
+  }
+
   async processTtsQueue() {
     if (this.ttsPlaying || this.ttsQueue.length === 0) return;
     this.ttsPlaying = true;
@@ -364,18 +411,21 @@ class TempleAudioEngine {
         }
       }
 
-      if (audioUrl) {
-        this.setBgDucking(true);
-        if (this.onTtsStateChange) {
-          this.onTtsStateChange({ speaking: true, synthesizing: false, text: item.text });
-        }
-        if (item.onStart) item.onStart();
-        await this.playWavUrl(audioUrl);
-        if (item.onEnd) item.onEnd();
-      } else {
-        if (item.onStart) item.onStart();
-        if (item.onEnd) setTimeout(item.onEnd, 5500);
+      this.setBgDucking(true);
+      if (this.onTtsStateChange) {
+        this.onTtsStateChange({ speaking: true, synthesizing: false, text: item.text });
       }
+      if (item.onStart) item.onStart();
+
+      if (audioUrl) {
+        await this.playWavUrl(audioUrl);
+      } else {
+        // Chỉ phát duy nhất giọng AI Mai Chi (ZeroTTS), tuyệt đối không fallback sang giọng nam robot của Windows khi nghẽn
+        console.warn('[ZeroTTS] Tạm thời chưa có file WAV Mai Chi (đang nghẽn hoặc lọc ký tự), bỏ qua không đọc giọng nam:', item.text);
+        await new Promise((r) => setTimeout(r, 2200));
+      }
+
+      if (item.onEnd) item.onEnd();
     } catch (err) {
       console.warn('[ZeroTTS Playback Warning]', err);
       if (item.onStart) item.onStart();
@@ -399,20 +449,21 @@ class TempleAudioEngine {
         const audio = new Audio(url);
         this.currentAudio = audio;
         audio.volume = this.ttsVolume;
-        audio.onended = () => {
+        let resolved = false;
+        const done = () => {
+          if (resolved) return;
+          resolved = true;
+          clearTimeout(safetyTimer);
           this.currentAudio = null;
           resolve();
         };
-        audio.onerror = () => {
-          this.currentAudio = null;
-          resolve();
-        };
+        // Safety timeout tối đa 20s để không bao giờ bị kẹt vĩnh viễn hàng đợi TTS
+        const safetyTimer = setTimeout(done, 20000);
+        audio.onended = done;
+        audio.onerror = done;
         const playPromise = audio.play();
         if (playPromise && typeof playPromise.catch === 'function') {
-          playPromise.catch(() => {
-            this.currentAudio = null;
-            resolve();
-          });
+          playPromise.catch(done);
         }
       } catch (_) {
         resolve();
